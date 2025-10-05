@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Roasting Chatbot by Saad</title>
+<style>
+  :root {
+    --bg: #121212;
+    --chat-bg: #1e1e1e;
+    --user-color: #0a84ff;
+    --bot-color: #30d158;
+    --text-color: #e0e0e0;
+    --input-bg: #222;
+    --button-bg: #0a84ff;
+    --button-hover: #0066cc;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: var(--font-family);
+    background-color: var(--bg);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .main-container h2 {
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .chat-container {
+    width: 100%;
+    height: 90vh;
+    background: var(--chat-bg);
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+
+  .message {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    line-height: 1.4;
+    word-wrap: break-word;
+  }
+
+  .user {
+    align-self: flex-end;
+    background-color: var(--user-color);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+
+  .bot {
+    align-self: flex-start;
+    background-color: var(--bot-color);
+    color: #000;
+    border-bottom-left-radius: 4px;
+  }
+
+  .input-area {
+    display: flex;
+    padding: 16px 20px;
+    border-top: 1px solid #333;
+    background-color: var(--chat-bg);
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 14px;
+    font-size: 16px;
+    border-radius: 24px;
+    border: none;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    outline: none;
+    transition: background-color 0.3s ease;
+  }
+
+  input[type="text"]:focus { background-color: #333; }
+
+  button {
+    margin-left: 14px;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 24px;
+    border: none;
+    background-color: var(--button-bg);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover { background-color: var(--button-hover); }
+
+  @media (max-width: 500px) {
+    .chat-container {
+      height: 100vh;
+      border-radius: 0;
+    }
+    .chat-box {
+      padding: 15px;
+    }
+    .input-area {
+      padding: 12px 15px;
+    }
+    input[type="text"] {
+      font-size: 15px;
+    }
+    button {
+      font-size: 15px;
+      padding: 10px 16px;
+    }
+  }
+
+  @media (min-width: 501px) and (max-width: 768px) {
+    .chat-container {
+      height: 90vh;
+    }
+    .chat-box {
+      padding: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="main-container">
+    <h2>Roasting Chatbot - by Saad Shaikh</h2>
+    <div class="chat-container">
+      <div id="chatBox" class="chat-box"></div>
+      <div class="input-area">
+        <input id="userInput" type="text" placeholder="Ask me anything..." autocomplete="off" />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const chatBox = document.getElementById('chatBox');
+  const userInput = document.getElementById('userInput');
+
+  const knowledgeBase = {
+    greetings: ["Ha bolna bacchi!","Ajj meri khopdi khiskeli hai ha! Jo bhi bolega na soch samajhke bolna!!!","Kya bolta bantai, waapis aagaya tu?","Fir aa gaya be tu?!","Waapis pakane aa gaya tu?!"],
+    how_are_you: ["Macharele bhai! bol kya mangau tere liye? sting, chai, coffee, ke ...hehe","Teko ","Abhi tak theek hi tha, tu aagaya na pakane!","Mai to tanatan hu , tu bol kya haal hai."],
+    name: ["I'm an offline chatbot built with HTML, CSS, and JavaScript.","Dekh bhai, mai ek AI bot hu, Lekin meko zaada pakau log pasand nhi hai ha!","I don't have a fancy name yet, but I'm learning!"],
+    joke: ["Joke? Matlab apni hi biography sunni hai kya? 😏","Mera joke sunega to roast ho jayega bhai, rehne de!","Why did the human ask AI for a joke?","Why do human asks AI to tell a joke? Because Google stopped replying to his nonsense.😏","Why did the human ask AI about life advice?","Why did the human ask AI about life advice? Because his brain is on airplane mode."],
+    time: [() => `The current time is ${new Date().toLocaleTimeString()}.`,() => `Right now, it’s ${new Date().toLocaleTimeString()}.`,() => `It's ${new Date().toLocaleTimeString()} at your location.`,"Time bahut kharab chal raha hai, kya karega jaanke?!"],
+    date: [() => `Today is ${new Date().toLocaleDateString()}.`,() => `The date now is ${new Date().toLocaleDateString()}.`,() => `We're on ${new Date().toLocaleDateString()} today.`],
+    math: ["Math is fascinating! What math question do you have?","I can help with simple math facts. Try asking me!","Numbers are fun! What would you like to calculate?","Maths bhi nhi aata be teko! meko puchte rehta hai!!"],
+    science: ["Science ki book kholke padhai kar yede! Sab AI se hi puchta hai!","Book kholke padh!","From atoms to galaxies, science is amazing!"],
+    history: ["History teaches us valuable lessons.","Ask me about important events or figures!","The past shapes our present and future."],
+    farewell: ["Pehli fursat me nikal!","Hushh! Chala gaya pakau insaan!","Soja jake, churan!","Chal bhag yahase, pakate rehta hai !"],
+    default: ["Itna billa sawal kyu puchta hai be!","Teko malum kya!? Anpad kidhar ka!","Aaj mann nhi karraha hai teko answer dene ka!","Nhi deneka hai answer, bhag yaha se!"],
+    Fuck: ["Abee gaali se baat mat kar ha!","Zabaan samhalke baat kar!","English ki gaali deke cool ban gaya kya tu!?"],
+    Football: ["Ronaldo bhai ke aage koi bol sakta hai kya?!","Ronaldo the GOAT!!!","Ronaldo","CR7"],
+    about: ["Mai ek roasting chatbot hu, mujhe Saad Bhai aur AI ne milke banaya hai. Tu mere ko bahut si cheez puch sakta hai, jaese: Ronaldo or messi, Science Questions, Joke, Date today, Time now, etc.Lekin mai bas ek simple chatbot hu, isi liye mera ddimag zaada khaane ka nhi, Theek hai! aur Zabaan samhal ke baat karne ka ha, Gaali to dena hi nhi."]
+  };
+
+  const keywordMap = {
+    greetings: ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"],
+    how_are_you: ["how are you", "how's it going", "how do you do", "how you doing"],
+    name: ["your name", "who are you", "what is your name", "who am i talking to"],
+    joke: ["joke", "make me laugh", "funny", "tell me a joke"],
+    time: ["time", "current time", "what time", "clock"],
+    date: ["date", "today's date", "what date", "day is it"],
+    math: ["math", "calculate", "addition", "subtraction", "multiply", "divide", "number"],
+    science: ["science", "physics", "chemistry", "biology", "universe", "planet"],
+    history: ["history", "past", "historical", "war", "event", "year"],
+    farewell: ["bye", "goodbye", "see you", "later", "farewell", "catch you later"],
+    Fuck: ["fuck you!", "fuck", "bitch", "motherfucker"],
+    Football: ["Ronaldo or Messi", "Messi or Ronaldo", "ronaldo or messi", "messi or ronaldo", "Who is the football goat", "Goat", "goat"],
+    about: ["what can you do?", "what can you do", "What can you do", "Kya Kya", "Tu kya ukhad lega", "give your introduction"]
+  };
+
+  function randomChoice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function findCategory(input) {
+    input = input.toLowerCase();
+    for (const [category, keywords] of Object.entries(keywordMap)) {
+      for (const kw of keywords) if (input.includes(kw)) return category;
+    }
+    return "default";
+  }
+
+  function getResponse(category) {
+    const responses = knowledgeBase[category] || knowledgeBase.default;
+    const response = randomChoice(responses);
+    if (typeof response === "function") return response();
+    return response;
+  }
+
+  function addMessage(sender, text, className) {
+    const message = document.createElement("div");
+    message.className = `message ${className}`;
+    message.innerHTML = `<strong>${sender}:</strong> ${text}`;
+    chatBox.appendChild(message);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function sendMessage() {
+    let text = userInput.value.trim();
+    if (text === "") return;
+    addMessage("You", text, "user");
+    userInput.value = "";
+    userInput.disabled = true;
+
+    setTimeout(() => {
+      const category = findCategory(text);
+      const reply = getResponse(category);
+      addMessage("Bot", reply, "bot");
+      userInput.disabled = false;
+      userInput.focus();
+    }, 600);
+  }
+
+  userInput.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
+
+  window.onload = () => {
+    addMessage("Bot", "Step to activate the Chatbot: Enter prompt 'What can you do?", "bot");
+    userInput.focus();
+  };
+</script>
+</body>
+</html>
